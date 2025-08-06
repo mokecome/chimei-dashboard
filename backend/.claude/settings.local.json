@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(mysql:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(pkill:*)"
+    ],
+    "deny": []
+  }
+}

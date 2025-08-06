@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - 奇美食品智能分析系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #06b6d4;
+            --accent-color: #8b5cf6;
+            --dark-color: #1f2937;
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        
+        .custom-input {
+            padding-left: 48px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .custom-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        
+        .login-button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5);
+        }
+        
+        .social-login {
+            transition: all 0.3s ease;
+        }
+        
+        .social-login:hover {
+            transform: translateY(-2px);
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" style="fill:white;opacity:0.3"></path></svg>');
+            background-size: cover;
+        }
+        
+        .loading-spinner {
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .error-message {
+            display: none;
+            background-color: #fee;
+            border-left: 4px solid #ef4444;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <!-- Background decoration -->
+    <div class="wave"></div>
+    
+    <!-- Floating shapes -->
+    <div class="absolute top-10 left-10 w-20 h-20 bg-white opacity-10 rounded-full animate-pulse"></div>
+    <div class="absolute bottom-10 right-10 w-32 h-32 bg-white opacity-10 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+    <div class="absolute top-1/2 right-20 w-16 h-16 bg-white opacity-10 rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+    
+    <div class="login-container p-8 md:p-10 max-w-md mx-auto z-10 w-full m-4">
+        <!-- Logo and Title -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
+                <i class="fas fa-chart-line text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">歡迎回來</h1>
+            <p class="text-gray-600">登入奇美食品智能分析系統</p>
+        </div>
+        
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span id="errorText">帳號或密碼錯誤，請重新輸入</span>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <!-- Account Input -->
+            <div class="input-group mb-6">
+                <i class="fas fa-user"></i>
+                <input 
+                    type="text" 
+                    id="account"
+                    class="custom-input w-full px-4 py-3 rounded-lg bg-gray-50 focus:bg-white focus:outline-none"
+                    placeholder="請輸入帳號"
+                    required
+                >
+            </div>
+            
+            <!-- Password Input -->
+            <div class="input-group mb-6">
+                <i class="fas fa-lock"></i>
+                <input 
+                    type="password" 
+                    id="password"
+                    class="custom-input w-full px-4 py-3 rounded-lg bg-gray-50 focus:bg-white focus:outline-none"
+                    placeholder="請輸入密碼"
+                    required
+                >
+                <button type="button" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" onclick="togglePassword()">
+                    <i class="fas fa-eye" id="passwordToggle"></i>
+                </button>
+            </div>
+            
+            <!-- Remember Me & Forgot Password -->
+            <div class="flex items-center justify-between mb-6">
+                <label class="flex items-center text-sm text-gray-600">
+                    <input type="checkbox" class="checkbox-custom mr-2 text-blue-600">
+                    記住我的帳號
+                </label>
+                <a href="#" class="text-sm text-blue-600 hover:text-blue-700">忘記密碼？</a>
+            </div>
+            
+            <!-- Login Button -->
+            <button type="submit" class="login-button w-full py-3 px-4 rounded-lg text-white font-medium flex items-center justify-center">
+                <span id="loginText">登入系統</span>
+                <i class="fas fa-spinner loading-spinner ml-2" id="loadingSpinner"></i>
+            </button>
+            
+            <!-- Divider -->
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">或使用其他方式登入</span>
+                </div>
+            </div>
+            
+            <!-- Social Login -->
+            <div class="grid grid-cols-2 gap-4">
+                <button type="button" class="social-login flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i class="fab fa-google text-red-500 mr-2"></i>
+                    Google
+                </button>
+                <button type="button" class="social-login flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i class="fab fa-microsoft text-blue-500 mr-2"></i>
+                    Microsoft
+                </button>
+            </div>
+        </form>
+        
+        <!-- Footer -->
+        <div class="mt-8 text-center text-xs text-gray-500">
+            <p>© 2025 奇美食品股份有限公司</p>
+            <p class="mt-1">需要協助？請聯繫 <a href="#" class="text-blue-600 hover:underline">support@chimei.com</a></p>
+        </div>
+    </div>
+    
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.classList.remove('fa-eye');
+                passwordToggle.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.classList.remove('fa-eye-slash');
+                passwordToggle.classList.add('fa-eye');
+            }
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const account = document.getElementById('account').value;
+            const password = document.getElementById('password').value;
+            const loginText = document.getElementById('loginText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Show loading state
+            loginText.textContent = '登入中...';
+            loadingSpinner.style.display = 'inline-block';
+            errorMessage.style.display = 'none';
+            
+            // Simulate login process
+            setTimeout(() => {
+                // For demo purposes, accept any non-empty credentials
+                if (account && password) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Show error
+                    errorMessage.style.display = 'block';
+                    loginText.textContent = '登入系統';
+                    loadingSpinner.style.display = 'none';
+                }
+            }, 1500);
+        });
+        
+        // Social login handlers
+        document.querySelectorAll('.social-login').forEach(button => {
+            button.addEventListener('click', function() {
+                const provider = this.textContent.trim();
+                alert(`使用 ${provider} 登入功能即將推出！`);
+            });
+        });
+    </script>
+</body>
+</html>

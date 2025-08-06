@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資料來源 - 奇美食品智慧分析系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 24px;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #06b6d4;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-processing {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-analyzed {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+        
+        .status-pending {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .detail-modal {
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 flex-shrink-0 text-white">
+            <!-- Logo -->
+            <div class="p-6 border-b border-blue-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-lg">奇美食品</h2>
+                        <p class="text-xs text-blue-200">智慧分析系統</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="mt-6">
+                <div class="px-4 mb-2">
+                    <p class="text-xs text-blue-200 uppercase tracking-wider">主功能</p>
+                </div>
+                
+                <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-white">
+                    <i class="fas fa-home w-5 mr-3"></i>
+                    營運總覽
+                </a>
+                
+                <a href="analysis.html" class="nav-item flex items-center px-6 py-3 text-white">
+                    <i class="fas fa-chart-bar w-5 mr-3"></i>
+                    深度分析
+                </a>
+                
+                
+                <div class="px-4 mb-2 mt-6">
+                    <p class="text-xs text-blue-200 uppercase tracking-wider">數據管理</p>
+                </div>
+                
+                <a href="datasource.html" class="nav-item active flex items-center px-6 py-3 text-white">
+                    <i class="fas fa-database w-5 mr-3"></i>
+                    匯入資料
+                </a>
+                
+                <a href="labelsetting.html" class="nav-item flex items-center px-6 py-3 text-white">
+                    <i class="fas fa-tags w-5 mr-3"></i>
+                    分類設定
+                </a>
+                
+                <a href="account.html" class="nav-item flex items-center px-6 py-3 text-white">
+                    <i class="fas fa-users-cog w-5 mr-3"></i>
+                    權限管理
+                </a>
+                
+            </nav>
+
+            <!-- User Info -->
+            <div class="absolute bottom-0 w-64 p-6 border-t border-blue-800">
+                <div class="user-menu flex items-center justify-between cursor-pointer p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-300 rounded-full flex items-center justify-center mr-3">
+                            <span class="text-sm font-medium text-blue-800">DY</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Daisy Yang</p>
+                            <p class="text-xs text-blue-200">管理員</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs text-blue-200"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                            <span>Dashboard</span>
+                            <i class="fas fa-chevron-right mx-2"></i>
+                            <span>匯入資料</span>
+                            <i class="fas fa-chevron-right mx-2"></i>
+                            <span>AI 分析</span>
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-800">分析上傳檔案</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="openUploadModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-upload mr-2"></i>匯入
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="p-8">
+                <!-- Data Table -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">檔案名稱</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上傳時間</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">資料狀態</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">回饋分類</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品分類</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">評價傾向</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上傳者</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">檔案格式</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">詳細內容</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 cursor-pointer">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">001.wav</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">2025-07-04 12:47:28</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">分析中 · 商品 30 秒 
+                                            <i class="fas fa-sync fa-spin text-blue-500 ml-2"></i>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">通路物流</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">食品口味</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">包子、饅頭</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">正面</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">權限人員 01</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">.wav</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <button onclick="openDetailModal('001')" class="text-blue-600 hover:text-blue-900 text-sm">
+                                            檢視
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 cursor-pointer">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">002.wav</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">2025-07-04 12:47:18</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">開始分析 
+                                            <i class="fas fa-check text-green-500 ml-2"></i>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">通路物流</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">食品口味</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">包子、饅頭</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">負面</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">權限人員 02</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">.txt</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <button onclick="openDetailModal('002')" class="text-blue-600 hover:text-blue-900 text-sm">
+                                            檢視
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 cursor-pointer">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">003.wav</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">2025-07-04 12:47:18</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">準備分析...</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">N/A</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">N/A</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">N/A</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">權限人員 02</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">.txt</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <button class="text-gray-400 text-sm cursor-not-allowed">
+                                            檢視
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">上傳分析檔案</h2>
+                <button onclick="closeUploadModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">選擇檔案</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600">拖拽檔案到此處或點擊選擇</p>
+                        <input type="file" class="hidden" accept=".wav,.mp3,.txt">
+                        <button type="button" class="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            選擇檔案
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                        取消
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-upload mr-2"></i>開始上傳
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="bg-white rounded-2xl p-8 detail-modal w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div class="flex items-center text-sm text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fas fa-chevron-right mx-2"></i>
+                        <span>匯入資料</span>
+                        <i class="fas fa-chevron-right mx-2"></i>
+                        <span>AI 分析結果</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-gray-800">分析結果 總覽</h2>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-download mr-2"></i>匯出至報表版
+                        </button>
+                    </div>
+                </div>
+                <button onclick="closeDetailModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- File Navigation -->
+            <div class="flex items-center justify-center mb-6">
+                <button class="p-2 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="mx-8">
+                    <h3 class="text-xl font-semibold text-gray-800">001.wav</h3>
+                </div>
+                <button class="p-2 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="text-right text-sm text-gray-500 mb-6">
+                2025-07-04  15:00 P.M.
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">分析結果</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">回饋分類</label>
+                        <div class="text-sm text-gray-900">通路物流</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">評價傾向</label>
+                        <div class="text-sm text-gray-900">負面</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">商品名稱</label>
+                        <div class="text-sm text-gray-900">無</div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">回饋原因</label>
+                    <div class="text-sm text-gray-900">顧客對於手福饅頭門市的營業資訊不清楚，無法查詢、電話無法接通導致服務缺失無法買到不滿與失望。</div>
+                </div>
+            </div>
+
+            <!-- Transcript -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">逐字稿</h3>
+                <div class="bg-gray-50 rounded-lg p-6 max-h-64 overflow-y-auto">
+                    <div class="space-y-4">
+                        <div>
+                            <div class="font-medium text-sm text-gray-700 mb-1">Speak A：</div>
+                            <div class="text-sm text-gray-900">你好，這裡是奇美食品，很高興為您服務！</div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-sm text-gray-700 mb-1">Speak B：</div>
+                            <div class="text-sm text-gray-900">不好意思，我之前有買過你們的一個叫包子醬的東西包回來，結果吃不完，想問一下還可以退嗎？</div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-sm text-gray-700 mb-1">Speak A：</div>
+                            <div class="text-sm text-gray-900">好的，為了協助您確認存方式，想先請問一下，您購買的餐包上面有登錄產品名稱？或是否大概記得是哪一種口味？</div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-sm text-gray-700 mb-1">Speak B：</div>
+                            <div class="text-sm text-gray-900">好我看一下嗯，包裝上面的是「介護食」，是冷凍的那種。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
+        }
+        
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+        }
+
+        function openDetailModal(fileId) {
+            document.getElementById('detailModal').classList.add('active');
+        }
+        
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+        
+        // Close modals when clicking outside
+        document.getElementById('uploadModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUploadModal();
+            }
+        });
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+    </script>
+</body>
+</html>

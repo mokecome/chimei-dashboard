@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奇美食品智能分析系統 - 設計系統展示</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #06b6d4;
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-bg: #f3f4f6;
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .page-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .preview-container {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+            background: #f9fafb;
+        }
+        
+        .preview-container iframe {
+            transform: scale(0.3);
+            transform-origin: top left;
+            width: 333%;
+            height: 333%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tag-new {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .tag-updated {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-6 py-12">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4">
+                <span class="gradient-text">奇美食品智能分析系統</span>
+            </h1>
+            <p class="text-xl text-gray-600">設計系統展示頁面</p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <span class="tag tag-new">
+                    <i class="fas fa-sparkles mr-1"></i>
+                    全新設計
+                </span>
+                <span class="tag tag-updated">
+                    <i class="fas fa-sync mr-1"></i>
+                    已優化
+                </span>
+            </div>
+        </div>
+        
+        <!-- Pages Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Login Page -->
+            <a href="login.html" class="page-card block">
+                <div class="preview-container">
+                    <iframe src="login.html" scrolling="no"></iframe>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-sign-in-alt text-blue-500 mr-2"></i>
+                        登入頁面
+                    </h3>
+                    <p class="text-gray-600 text-sm">現代化的登入介面，包含雙因素認證和社交登入選項</p>
+                    <span class="tag tag-updated mt-3">已優化</span>
+                </div>
+            </a>
+            
+            <!-- Dashboard Page -->
+            <a href="dashboard.html" class="page-card block">
+                <div class="preview-container">
+                    <iframe src="dashboard.html" scrolling="no"></iframe>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-chart-line text-green-500 mr-2"></i>
+                        營運洞察儀表板
+                    </h3>
+                    <p class="text-gray-600 text-sm">即時數據視覺化，包含關鍵績效指標和趨勢分析</p>
+                    <span class="tag tag-updated mt-3">已優化</span>
+                </div>
+            </a>
+            
+            <!-- Analysis Page -->
+            <a href="analysis.html" class="page-card block">
+                <div class="preview-container">
+                    <iframe src="analysis.html" scrolling="no"></iframe>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-analytics text-purple-500 mr-2"></i>
+                        深度分析頁面
+                    </h3>
+                    <p class="text-gray-600 text-sm">多維度數據分析，支援自定義報表和導出功能</p>
+                    <span class="tag tag-updated mt-3">已優化</span>
+                </div>
+            </a>
+            
+            <!-- Data Source Page -->
+            <a href="datasource.html" class="page-card block">
+                <div class="preview-container">
+                    <iframe src="datasource.html" scrolling="no"></iframe>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-database text-indigo-500 mr-2"></i>
+                        資料來源管理
+                    </h3>
+                    <p class="text-gray-600 text-sm">數據源配置和整合，支援多種數據格式導入</p>
+                    <span class="tag tag-updated mt-3">已優化</span>
+                </div>
+            </a>
+            
+            <!-- Label Setting Page -->
+            <a href="labelsetting.html" class="page-card block">
+                <div class="preview-container">
+                    <iframe src="labelsetting.html" scrolling="no"></iframe>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-tags text-yellow-500 mr-2"></i>
+                        標籤設定
+                    </h3>
+                    <p class="text-gray-600 text-sm">AI分析標籤管理，支援自定義分類和規則設定</p>
+                    <span class="tag tag-updated mt-3">已優化</span>
+                </div>
+            </a>
+            
+            <!-- Account Management Page -->
+            <a href="account.html" class="page-card block">
+                <div class="preview-container">
+                    <iframe src="account.html" scrolling="no"></iframe>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-users-cog text-red-500 mr-2"></i>
+                        帳戶管理
+                    </h3>
+                    <p class="text-gray-600 text-sm">用戶權限管理，角色設定和操作日誌查詢</p>
+                    <span class="tag tag-updated mt-3">已優化</span>
+                </div>
+            </a>
+            
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-16 text-center text-gray-600">
+            <p class="mb-2">© 2025 奇美食品股份有限公司 - 智能分析系統設計原型</p>
+            <p class="text-sm">所有數據均為示例數據，僅供設計展示使用</p>
+        </div>
+    </div>
+</body>
+</html>

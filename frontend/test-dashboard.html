@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard API Test</title>
+</head>
+<body>
+    <h1>Dashboard API Test</h1>
+    <div id="result"></div>
+    <script>
+        async function testDashboard() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // First login
+                const loginRes = await fetch('http://localhost:8100/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'admin@chimei.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const loginData = await loginRes.json();
+                const token = loginData.data.token;
+                
+                resultDiv.innerHTML += '<p>✓ Login successful</p>';
+                
+                // Test dashboard
+                const dashboardRes = await fetch('http://localhost:8100/api/data/dashboard', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const dashboardData = await dashboardRes.json();
+                
+                resultDiv.innerHTML += '<p>✓ Dashboard API successful</p>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(dashboardData, null, 2) + '</pre>';
+                
+            } catch (error) {
+                resultDiv.innerHTML += '<p style="color: red;">✗ Error: ' + error.message + '</p>';
+            }
+        }
+        
+        testDashboard();
+    </script>
+</body>
+</html>
