@@ -11,7 +11,7 @@ from ..models.file import VoiceFile, FileStatus, FileFormat
 from ..schemas.file import FileCreate, FileUpdate
 from ..schemas.common import PaginationParams, PaginatedResponse
 from ..config import settings
-from ..ai.speech_to_text import speech_service
+# from ..ai.speech_to_text import speech_service
 
 
 class FileService:
@@ -60,7 +60,7 @@ class FileService:
         
         # Calculate duration for audio files
         if file_data.file_format in [FileFormat.WAV, FileFormat.MP3]:
-            duration = speech_service.get_audio_duration(file_data.file_path)
+            duration = 0  # speech_service.get_audio_duration(file_data.file_path)
             file_dict["duration"] = duration
         
         return self.file_repo.create(file_dict)

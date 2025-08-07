@@ -239,7 +239,7 @@ const initCharts = () => {
       data: {
         labels: productChart.data.map((item: any) => {
           // 清理產品名稱：移除方括號和引號
-          if (!item.name) return '未分類'
+          if (!item.name) return '無'
           
           let cleanName = item.name.toString()
           
@@ -260,7 +260,7 @@ const initCharts = () => {
             }
           }
           
-          return cleanName || '未分類'
+          return cleanName || '無'
         }),
         datasets: [
           {

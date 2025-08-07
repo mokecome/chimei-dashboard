@@ -58,27 +58,43 @@ class AnalysisRepository(BaseRepository[VoiceAnalysis]):
         )
         
         # Apply filters
+        # Dimension 1: Products (OR within dimension)
         if product_names:
-            # Filter by product names in JSON array, also include records with null/empty product_names
+            # Filter by product names - handle "未分類" specially
             product_conditions = []
             for product in product_names:
-                product_conditions.append(
-                    VoiceAnalysis.product_names.contains(f'"{product}"')
-                )
-            # Also include records where product_names is null (no product identified)
-            product_conditions.append(
-                or_(
-                    VoiceAnalysis.product_names.is_(None),
-                    VoiceAnalysis.product_names.like('null')
-                )
-            )
-            query = query.filter(or_(*product_conditions))
+                if product == "未分類":
+                    # Special handling for unclassified records
+                    product_conditions.append(
+                        or_(
+                            VoiceAnalysis.product_names.is_(None),
+                            VoiceAnalysis.product_names.like('null'),
+                            VoiceAnalysis.product_names.like('[]')
+                        )
+                    )
+                else:
+                    # Regular product name matching - handle double JSON encoding
+                    product_conditions.append(
+                        and_(
+                            VoiceAnalysis.product_names.isnot(None),
+                            VoiceAnalysis.product_names != 'null',
+                            VoiceAnalysis.product_names != '[]',
+                            VoiceAnalysis.product_names.contains(f'\\\\\\"{product}\\\\\\"')
+                        )
+                    )
+            
+            if product_conditions:
+                # Apply OR within product dimension
+                query = query.filter(or_(*product_conditions))
         
+        # Dimension 2: Sentiments (OR within dimension, AND with products)
+        if sentiments:
+            # Apply OR within sentiment dimension, AND with product filter
+            query = query.filter(VoiceAnalysis.sentiment.in_(sentiments))
+        
+        # Other filters (AND with all previous filters)
         if feedback_categories:
             query = query.filter(VoiceAnalysis.feedback_category.in_(feedback_categories))
-        
-        if sentiments:
-            query = query.filter(VoiceAnalysis.sentiment.in_(sentiments))
         
         if uploaders:
             query = query.join(VoiceFile).filter(VoiceFile.uploaded_by.in_(uploaders))
@@ -109,26 +125,43 @@ class AnalysisRepository(BaseRepository[VoiceAnalysis]):
         query = self.db.query(VoiceAnalysis)
         
         # Apply filters (same as get_multi_with_file_info)
+        # Dimension 1: Products (OR within dimension)
         if product_names:
+            # Filter by product names - handle "未分類" specially
             product_conditions = []
             for product in product_names:
-                product_conditions.append(
-                    VoiceAnalysis.product_names.contains(f'"{product}"')
-                )
-            # Also include records where product_names is null (no product identified)
-            product_conditions.append(
-                or_(
-                    VoiceAnalysis.product_names.is_(None),
-                    VoiceAnalysis.product_names.like('null')
-                )
-            )
-            query = query.filter(or_(*product_conditions))
+                if product == "未分類":
+                    # Special handling for unclassified records
+                    product_conditions.append(
+                        or_(
+                            VoiceAnalysis.product_names.is_(None),
+                            VoiceAnalysis.product_names.like('null'),
+                            VoiceAnalysis.product_names.like('[]')
+                        )
+                    )
+                else:
+                    # Regular product name matching - handle double JSON encoding
+                    product_conditions.append(
+                        and_(
+                            VoiceAnalysis.product_names.isnot(None),
+                            VoiceAnalysis.product_names != 'null',
+                            VoiceAnalysis.product_names != '[]',
+                            VoiceAnalysis.product_names.contains(f'\\\\\\"{product}\\\\\\"')
+                        )
+                    )
+            
+            if product_conditions:
+                # Apply OR within product dimension
+                query = query.filter(or_(*product_conditions))
         
+        # Dimension 2: Sentiments (OR within dimension, AND with products)
+        if sentiments:
+            # Apply OR within sentiment dimension, AND with product filter
+            query = query.filter(VoiceAnalysis.sentiment.in_(sentiments))
+        
+        # Other filters (AND with all previous filters)
         if feedback_categories:
             query = query.filter(VoiceAnalysis.feedback_category.in_(feedback_categories))
-        
-        if sentiments:
-            query = query.filter(VoiceAnalysis.sentiment.in_(sentiments))
         
         if uploaders:
             query = query.join(VoiceFile).filter(VoiceFile.uploaded_by.in_(uploaders))

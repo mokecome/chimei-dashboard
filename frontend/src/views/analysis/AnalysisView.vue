@@ -165,15 +165,23 @@
             </el-table-column>
             <el-table-column label="評價傾向" width="100">
               <template #default="scope">
-                <span :class="`sentiment-${scope.row.sentiment}`">
-                  {{ scope.row.sentiment === 'positive' ? '正面' : scope.row.sentiment === 'negative' ? '負面' : '中性' }}
+                <span :class="`sentiment-${scope.row.sentiment?.toLowerCase()}`">
+                  {{ scope.row.sentiment === 'POSITIVE' ? '正面' : scope.row.sentiment === 'NEGATIVE' ? '負面' : '中性' }}
                 </span>
               </template>
             </el-table-column>
             <el-table-column label="商品分類" width="180">
               <template #default="scope">
                 <el-tag 
-                  v-for="product in (scope.row.product_names || [])" 
+                  v-if="!scope.row.product_names || scope.row.product_names.length === 0"
+                  class="product-tag product-unclassified"
+                  size="small"
+                >
+                  未分類
+                </el-tag>
+                <el-tag 
+                  v-else
+                  v-for="product in scope.row.product_names" 
                   :key="product"
                   :class="`product-${product}`"
                   class="product-tag"
@@ -312,21 +320,8 @@ const fetchData = async () => {
   })
   
   try {
-    // Process selected products - handle "未分類" specially
-    let productParams: string[] = []
-    
-    // If "未分類" is selected along with other products, we need to fetch all data
-    // and then filter client-side (backend doesn't support this combination correctly)
-    if (dimension1.value.selected.includes('未分類') && dimension1.value.selected.length > 1) {
-      // Get all data without product filter, then we'll filter on display
-      productParams = []
-    } else if (dimension1.value.selected.includes('未分類')) {
-      // Only "未分類" is selected - send empty array to get unclassified records
-      productParams = []
-    } else {
-      // Only specific products are selected
-      productParams = dimension1.value.selected
-    }
+    // Process selected products - backend now handles "未分類" correctly
+    let productParams: string[] = dimension1.value.selected
     
     // Fetch time series data for chart
     // Handle "未分類" correctly for time series API
@@ -375,24 +370,9 @@ const fetchData = async () => {
       page_size: pageSize.value
     })
     
-    // If we selected "未分類" along with other products, filter the results
-    if (dimension1.value.selected.includes('未分類') && dimension1.value.selected.length > 1) {
-      // Keep records that either:
-      // 1. Have no product classification (null, empty, or "null")
-      // 2. Have product classification that matches our selection
-      const selectedProducts = dimension1.value.selected.filter(p => p !== '未分類')
-      tableData.value = response.items.filter(item => {
-        if (!item.product_names || item.product_names.length === 0) {
-          return true // Unclassified record
-        }
-        // Check if any product matches our selection
-        return item.product_names.some(product => selectedProducts.includes(product))
-      })
-      total.value = tableData.value.length
-    } else {
-      tableData.value = response.items
-      total.value = response.total
-    }
+    // Backend now handles filtering correctly, no need for client-side filtering
+    tableData.value = response.items
+    total.value = response.total
     
   } catch (error) {
     console.error('Failed to fetch data:', error)
@@ -996,6 +976,12 @@ onMounted(async () => {
 .product-饅頭 {
   background-color: #fce7f3;
   color: #be185d;
+  border: none;
+}
+
+.product-unclassified {
+  background-color: #f3f4f6;
+  color: #6b7280;
   border: none;
 }
 
